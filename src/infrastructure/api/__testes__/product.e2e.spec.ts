@@ -125,4 +125,29 @@ describe('Product E2E Tests', () => {
         expect(response.body.products[0].name).toBe('Product A Updated');
         expect(response.body.products[0].price).toBe(200);
     });
+
+    it('should list all products in XML format', async () => {
+        await request(app)
+            .post('/product')
+            .send({
+                type: 'a',
+                name: 'Product A',
+                price: 100
+            });
+
+        const productListXML = await request(app)
+            .get('/product')
+            .set('Accept', 'application/xml');
+
+        expect(productListXML.status).toBe(200);
+        expect(productListXML.text).toContain('<?xml version="1.0" encoding="UTF-8"?>');
+        expect(productListXML.text).toContain('<products>');
+        expect(productListXML.text).toContain('<product>')
+        expect(productListXML.text).toContain('<id>');
+        expect(productListXML.text).toContain('</id>');
+        expect(productListXML.text).toContain('<name>Product A</name>');
+        expect(productListXML.text).toContain('<price>100</price>');
+        expect(productListXML.text).toContain('</product>');
+        expect(productListXML.text).toContain('</products>');
+    });
 });
